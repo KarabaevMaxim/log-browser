@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 namespace LogBrowser.Windows
 {
     using System.IO;
+    using System.Threading.Tasks;
     using Logic;
     /// <summary>
     /// Логика взаимодействия для MainWnd.xaml
@@ -33,7 +34,8 @@ namespace LogBrowser.Windows
                 { "Сообщение", "Message" }
             };
 
-            logManager = new LogManager();
+            this.logManager = new LogManager();
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -51,10 +53,12 @@ namespace LogBrowser.Windows
             {
                 logManager.ReadLogs();
             }
-            catch(FileNotFoundException)
+            catch (FileNotFoundException)
             {
-                MessageBox.Show(string.Format("Файл логов {0} не найден", Settings.SettingsInfo.LogFileName), "Ошибкапри загрузке логов.");
+                MessageBox.Show(string.Format("Файл логов {0} не найден", Settings.SettingsInfo.LogFileName), "Ошибка при загрузке логов.");
             }
+
+          //  this.UpdateLogs();
 
             TypesCmb.Items.Add(LogTypes.ALL);
             TypesCmb.Items.Add(LogTypes.INFO);
@@ -63,6 +67,26 @@ namespace LogBrowser.Windows
             TypesCmb.SelectedIndex = 0;
             FromDate.SelectedDate = DateTime.Now;
             UntilDate.SelectedDate = DateTime.Now;
+
+            TypesCmb.SelectionChanged += TypesCmb_SelectionChanged;
+            FromDate.SelectedDateChanged += FromDate_SelectedDateChanged;
+            UntilDate.SelectedDateChanged += UntilDate_SelectedDateChanged;
+
+            this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
+        }
+
+        private void UpdateLogs()
+        {
+            try
+            {
+                logManager.ReadLogs();
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show(string.Format("Файл логов {0} не найден", Settings.SettingsInfo.LogFileName), "Ошибка при загрузке логов.");
+            }
+
+            this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
         }
 
         private void UpdateLogTbl(List<Log> logs)
@@ -70,25 +94,28 @@ namespace LogBrowser.Windows
             this.LogsTbl.Columns.Clear();
             this.LogsTbl.Items.Clear();
 
+            
             foreach (var item in this.bindings)
-                this.LogsTbl.Columns.Add(new DataGridTextColumn { Header = item.Key, Binding = new Binding(item.Value) });
+            {
+                Binding binding = new Binding(item.Value);
+
+                if (item.Key == "Дата/Время")
+                    binding.StringFormat = "dd.MM.yy HH.mm.ss";
+
+                this.LogsTbl.Columns.Add(new DataGridTextColumn { Header = item.Key, Binding = binding });
+            }
+                
 
             try
             {
                 foreach (var item in logs)
                     this.LogsTbl.Items.Add(item);
             }
-            catch(NullReferenceException)
-            {
-
-            }
-            
+            catch(NullReferenceException){}
         }
 
         private void LogsTbl_Loaded(object sender, RoutedEventArgs e)
-        {
-          //  this.UpdateLogTbl();
-        }
+        {}
 
         private void LogsTbl_LoadingRow(object sender, DataGridRowEventArgs e)
         {
@@ -124,7 +151,7 @@ namespace LogBrowser.Windows
                 if((LogTypes)cmb.SelectedItem == LogTypes.ALL)
                     this.UpdateLogTbl(this.logManager.Logs);
                 else
-                    this.UpdateLogTbl(this.logManager.Logs.Where(l => l.LogType == (LogTypes)cmb.SelectedItem).ToList());
+                    this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
             }
         }
 
@@ -132,8 +159,7 @@ namespace LogBrowser.Windows
         {
             if(sender is DatePicker datePicker)
             {
-                this.UpdateLogTbl(this.logManager.Logs.Where(l => l.DateTime >= datePicker.SelectedDate
-                && l.DateTime <= UntilDate.SelectedDate).ToList());
+                this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
             }
         }
 
@@ -141,14 +167,33 @@ namespace LogBrowser.Windows
         {
             if (sender is DatePicker datePicker)
             {
-                this.UpdateLogTbl(this.logManager.Logs.Where(l => l.DateTime >= FromDate.SelectedDate
-                && l.DateTime <= datePicker.SelectedDate).ToList());
+                this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
             }
+        }
+
+        private Func<Log, bool> UpdateFilters()
+        {
+            Func<Log, bool> filters = null;
+            if ((LogTypes)TypesCmb.SelectedItem == LogTypes.ALL)
+            {
+                filters = l => l.DateTime.Date >= FromDate.SelectedDate.Value.Date
+                && l.DateTime.Date <= UntilDate.SelectedDate.Value.Date;
+            }
+            else
+            {
+                filters = l => l.DateTime.Date >= FromDate.SelectedDate.Value.Date
+                && l.DateTime.Date <= UntilDate.SelectedDate.Value.Date && l.LogType == (LogTypes)TypesCmb.SelectedItem;
+            }
+
+            return filters;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.UpdateLogs();
         }
 
         private Dictionary<string, string> bindings;
         private LogManager logManager;
-
-
     }
 }

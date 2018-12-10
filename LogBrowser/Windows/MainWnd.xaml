@@ -30,18 +30,23 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="С" Margin="5"/>
-                        <DatePicker Name="FromDate" Margin="5" SelectedDateChanged="FromDate_SelectedDateChanged" />
+                        <DatePicker Name="FromDate" Margin="5" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="По" Margin="5"/>
-                        <DatePicker Name="UntilDate" Margin="5" SelectedDateChanged="UntilDate_SelectedDateChanged"/>
+                        <DatePicker Name="UntilDate" Margin="5"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Тип" Margin="5"/>
-                <ComboBox Name="TypesCmb" SelectionChanged="TypesCmb_SelectionChanged"/>
+                <ComboBox Name="TypesCmb"/>
             </StackPanel>
+            <Button Margin="5" Click="Button_Click">
+                <ContentControl>
+                    <TextBlock Text="Обновить" Margin="5" FontSize="20"/>
+                </ContentControl>
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

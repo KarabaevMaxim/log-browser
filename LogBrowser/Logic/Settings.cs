@@ -22,6 +22,7 @@
             catch(FileNotFoundException)
             {
                 SaveSettings();
+                SettingsInfo = JsonConvert.DeserializeObject<SettingsStore>(File.ReadAllText(SettingsFileName));
             }
             
         }

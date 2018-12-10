@@ -9,10 +9,15 @@
 
     public class LogManager
     {
+        public LogManager()
+        {
+            this.Logs = new List<Log>();
+        }
+
         public void ReadLogs()
         {
             var logStrings = File.ReadAllLines(Settings.SettingsInfo.LogFileName, Encoding.GetEncoding("windows-1251"));
-            this.Logs = new List<Log>();
+            this.Logs.Clear();
 
             foreach (var item in logStrings)
             {
@@ -28,5 +33,6 @@
         }
 
         public List<Log> Logs { get; set; }
+        
     }
 }
