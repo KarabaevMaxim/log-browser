@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:LogBrowser.Windows"
         mc:Ignorable="d"
         Title="Главная" Height="450" Width="800" Loaded="Window_Loaded" >
@@ -17,13 +18,15 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="202"/>
         </Grid.ColumnDefinitions>
-        <DataGrid Grid.Column="1" Grid.Row="1" Name="LogsTbl" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" Loaded="LogsTbl_Loaded" LoadingRow="LogsTbl_LoadingRow">
+        
+        <DataGrid Grid.Column="1" Grid.Row="1" Name="LogsTbl" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" LoadingRow="LogsTbl_LoadingRow">
             <DataGrid.Resources>
                 <Style TargetType="DataGridRow">
                     <EventSetter Event="MouseDoubleClick" Handler="LogsTbl_MouseDoubleClick"/>
                 </Style>
             </DataGrid.Resources>
         </DataGrid>
+        <fa:ImageAwesome Name="SaveAnim" Grid.Column="1" Grid.Row="1" Icon="Cog" Spin="True" SpinDuration="3" />
         <StackPanel Grid.Column="2" Grid.Row="1">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Период" Margin="5"/>

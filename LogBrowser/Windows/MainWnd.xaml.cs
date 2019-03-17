@@ -40,7 +40,9 @@ namespace LogBrowser.Windows
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            try
+			SaveAnim.Visibility = Visibility.Visible;
+
+			try
             {
                 Settings.LoadSettings();
             }
@@ -58,8 +60,6 @@ namespace LogBrowser.Windows
                 MessageBox.Show(string.Format("Файл логов {0} не найден", Settings.SettingsInfo.LogFileName), "Ошибка при загрузке логов.");
             }
 
-          //  this.UpdateLogs();
-
             TypesCmb.Items.Add(LogTypes.ALL);
             TypesCmb.Items.Add(LogTypes.INFO);
             TypesCmb.Items.Add(LogTypes.WARN);
@@ -74,17 +74,17 @@ namespace LogBrowser.Windows
 			RecordCountCmb.Items.Add(1000);
 			RecordCountCmb.Items.Add(logManager.Logs.Count);
 			RecordCountCmb.SelectedIndex = 0;
-
 			TypesCmb.SelectionChanged += TypesCmb_SelectionChanged;
             FromDate.SelectedDateChanged += FromDate_SelectedDateChanged;
             UntilDate.SelectedDateChanged += UntilDate_SelectedDateChanged;
-
-            this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
-        }
+			this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
+			SaveAnim.Visibility = Visibility.Hidden;
+		}
 
         private void UpdateLogs()
         {
-            try
+			SaveAnim.Visibility = Visibility.Visible;
+			try
             {
                 logManager.ReadLogs();
             }
@@ -94,14 +94,15 @@ namespace LogBrowser.Windows
             }
 
             this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
-        }
+			SaveAnim.Visibility = Visibility.Hidden;
+		}
 
         private void UpdateLogTbl(List<Log> logs)
         {
-            this.LogsTbl.Columns.Clear();
+			SaveAnim.Visibility = Visibility.Visible;
+			this.LogsTbl.Columns.Clear();
             this.LogsTbl.Items.Clear();
 
-            
             foreach (var item in this.bindings)
             {
                 Binding binding = new Binding(item.Value);
@@ -112,7 +113,6 @@ namespace LogBrowser.Windows
                 this.LogsTbl.Columns.Add(new DataGridTextColumn { Header = item.Key, Binding = binding });
             }
                 
-
             try
             {
 				var collection = logs.Skip(Math.Max(0, logs.Count - (int)RecordCountCmb.SelectedItem));
@@ -121,10 +121,8 @@ namespace LogBrowser.Windows
                     this.LogsTbl.Items.Add(item);
             }
             catch(NullReferenceException){}
-        }
-
-        private void LogsTbl_Loaded(object sender, RoutedEventArgs e)
-        {}
+			SaveAnim.Visibility = Visibility.Hidden;
+		}
 
         private void LogsTbl_LoadingRow(object sender, DataGridRowEventArgs e)
         {
@@ -195,8 +193,10 @@ namespace LogBrowser.Windows
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.UpdateLogs();
-        }
+			SaveAnim.Visibility = Visibility.Visible;
+			this.UpdateLogs();
+			SaveAnim.Visibility = Visibility.Hidden;
+		}
 
 		private void RecordCountCmb_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
