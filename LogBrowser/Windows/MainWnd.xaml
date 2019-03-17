@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LogBrowser.Windows"
         mc:Ignorable="d"
         Title="Главная" Height="450" Width="800" Loaded="Window_Loaded" >
-    <Grid ShowGridLines="True">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
             <RowDefinition Height="300*"/>
@@ -41,6 +41,10 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Тип" Margin="5"/>
                 <ComboBox Name="TypesCmb"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Кол-во записей:" Margin="10" TextAlignment="Center"/>
+                <ComboBox Name="RecordCountCmb" Margin="5" SelectionChanged="RecordCountCmb_SelectionChanged"/>
             </StackPanel>
             <Button Margin="5" Click="Button_Click">
                 <ContentControl>

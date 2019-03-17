@@ -67,8 +67,15 @@ namespace LogBrowser.Windows
             TypesCmb.SelectedIndex = 0;
             FromDate.SelectedDate = DateTime.Now;
             UntilDate.SelectedDate = DateTime.Now;
+			RecordCountCmb.Items.Clear();
+			RecordCountCmb.Items.Add(50);
+			RecordCountCmb.Items.Add(200);
+			RecordCountCmb.Items.Add(500);
+			RecordCountCmb.Items.Add(1000);
+			RecordCountCmb.Items.Add(logManager.Logs.Count);
+			RecordCountCmb.SelectedIndex = 0;
 
-            TypesCmb.SelectionChanged += TypesCmb_SelectionChanged;
+			TypesCmb.SelectionChanged += TypesCmb_SelectionChanged;
             FromDate.SelectedDateChanged += FromDate_SelectedDateChanged;
             UntilDate.SelectedDateChanged += UntilDate_SelectedDateChanged;
 
@@ -108,7 +115,9 @@ namespace LogBrowser.Windows
 
             try
             {
-                foreach (var item in logs)
+				var collection = logs.Skip(Math.Max(0, logs.Count - (int)RecordCountCmb.SelectedItem));
+
+				foreach (var item in collection)
                     this.LogsTbl.Items.Add(item);
             }
             catch(NullReferenceException){}
@@ -119,9 +128,11 @@ namespace LogBrowser.Windows
 
         private void LogsTbl_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+			//e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+			e.Row.Header = (this.logManager.Logs.Count - e.Row.GetIndex()).ToString();
 
-            if(e.Row.DataContext is Log log)
+
+			if (e.Row.DataContext is Log log)
             {
                 if (log.LogType == LogTypes.ERROR)
                     e.Row.Background = Brushes.Pink;
@@ -147,12 +158,7 @@ namespace LogBrowser.Windows
         private void TypesCmb_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if(sender is ComboBox cmb)
-            {
-                if((LogTypes)cmb.SelectedItem == LogTypes.ALL)
-                    this.UpdateLogTbl(this.logManager.Logs);
-                else
-                    this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
-            }
+				this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
         }
 
         private void FromDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -166,14 +172,13 @@ namespace LogBrowser.Windows
         private void UntilDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is DatePicker datePicker)
-            {
                 this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
-            }
         }
 
         private Func<Log, bool> UpdateFilters()
         {
             Func<Log, bool> filters = null;
+
             if ((LogTypes)TypesCmb.SelectedItem == LogTypes.ALL)
             {
                 filters = l => l.DateTime.Date >= FromDate.SelectedDate.Value.Date
@@ -193,7 +198,12 @@ namespace LogBrowser.Windows
             this.UpdateLogs();
         }
 
-        private Dictionary<string, string> bindings;
+		private void RecordCountCmb_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			this.UpdateLogTbl(this.logManager.Logs.Where(this.UpdateFilters()).ToList());
+		}
+
+		private Dictionary<string, string> bindings;
         private LogManager logManager;
-    }
+	}
 }

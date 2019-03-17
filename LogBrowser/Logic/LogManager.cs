@@ -30,7 +30,15 @@
                     Message = str[3]
                 });
             }
-        }
+
+			this.ReverseLogs();
+
+		}
+
+		public void ReverseLogs()
+		{
+			this.Logs.Reverse();
+		}
 
         public List<Log> Logs { get; set; }
         
